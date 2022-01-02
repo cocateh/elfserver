@@ -321,6 +321,7 @@ void serve(const char* image, size_t image_len, char* addr_str) {
         if (client_sock = accept(sock, (struct sockaddr*)&client_addr,
                                  ((socklen_t*)&client_len)))
         {
+            /*
             ssize_t len = send(client_sock, &image_len, sizeof(size_t), 0);
             if (len != sizeof(size_t)) {
                 fprintf(stderr, "sent %d, expected %d\n", len, sizeof(size_t));
@@ -334,7 +335,8 @@ void serve(const char* image, size_t image_len, char* addr_str) {
             printf("sending %d bytes to %s\n", len,
                    inet_ntoa(client_addr.sin_addr));
             close(client_sock);
-            /*
+            */
+            
             setpgrp();
             switch (fork()) {
             case -1:
@@ -342,12 +344,14 @@ void serve(const char* image, size_t image_len, char* addr_str) {
             case 0:
                 ssize_t len = send(client_sock, &image_len, sizeof(size_t), 0);
                 if (len != sizeof(size_t)) {
-                    fprintf(stderr, "sent %d, expected %d\n", len, sizeof(size_t));
+                    fprintf(stderr, "sent %d, expected %d\n",
+                            len, sizeof(size_t));
                     goto size_mismatch;
                 }
                 len = send(client_sock, image, image_len, 0);
                 if (len != image_len) {
-                    fprintf(stderr, "sent %d, expected %d\n", len, image_len);
+                    fprintf(stderr, "sent %d, expected %d\n",
+                            len, image_len);
                     goto size_mismatch;
                 }
                 printf("served %d bytes to %s\n", len,
@@ -355,7 +359,6 @@ void serve(const char* image, size_t image_len, char* addr_str) {
                 close(client_sock);
                 exit(EXIT_SUCCESS);
             }
-            */
         }
     }
     close(sock);
@@ -365,12 +368,10 @@ size_mismatch:
     close(sock);
     ferrexit("sent size mismatch");
 
-/*
 fork_failure:
     close(client_sock);
     close(sock);
     perrexit("fork() failed");
-*/
 }
 
 size_t read_imagefile(FILE* filp, char** buf) {

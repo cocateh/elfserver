@@ -16,4 +16,4 @@ payload:
 	cc -fuse-ld=lld -Xlinker --image-base=0x0 -ffreestanding -nostdlib payload.c -o payload
 
 clean:
-	rm -rf server payload vgcore.* *.bin
+	rm -rf server payload vgcore.* *.bin client
