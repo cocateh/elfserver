@@ -257,6 +257,8 @@ size_t consume_elf(char** dst, u64 base, FILE* filp) {
     u64 current_addr = target_base;
     size_t buf_pos = 0;
     size_t image_size = 0;
+    char* new_dst = NULL;
+
     *dst = malloc(24);
     memcpy(*dst + buf_pos, SRV_MAGIC, 8);
     buf_pos += 8;
@@ -273,12 +275,18 @@ size_t consume_elf(char** dst, u64 base, FILE* filp) {
         u64 offset = current_seg.vaddr - current_addr;
         if (offset > 0) {
             image_size += offset;
-            *dst = realloc(*dst, image_size);
+            new_dst = realloc(*dst, image_size);
+            if (new_dst == NULL)
+                ferrexit("realloc() failed");
+            *dst = new_dst;
             memset(*dst + buf_pos, 0, offset);
             buf_pos += offset;
         }
         image_size += current_seg.data_size;
-        *dst = realloc(*dst, image_size);
+        new_dst = realloc(*dst, image_size);
+        if (new_dst == NULL)
+            ferrexit("realloc() failed");
+        *dst = new_dst;
         memcpy(*dst + buf_pos, current_seg.data, current_seg.data_size);
         buf_pos += current_seg.data_size;
         current_addr = current_seg.vaddr + current_seg.data_size;
